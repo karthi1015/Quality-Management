@@ -64,8 +64,6 @@ for i in model_cats:
     nr_of_elems += len(cat_elems)
 
 
-
-
 # data lists ------------------------------------------------------------------
 #  headers
 headers = []
@@ -83,7 +81,9 @@ data.append(nr_of_elems)
 
 # regular Bic counting
 bics_count = [Bic.OST_Views, Bic.OST_Sheets, Bic.OST_Rooms, Bic.OST_Areas, Bic.OST_RvtLinks, Bic.OST_Materials,\
-                Bic.OST_IOSDetailGroups, Bic.OST_IOSModelGroups, Bic.OST_DesignOptionSets, Bic.OST_DesignOptions]
+                Bic.OST_IOSDetailGroups, Bic.OST_IOSModelGroups, Bic.OST_DesignOptionSets, Bic.OST_DesignOptions,\
+                Bic.OST_RasterImages, Bic.OST_Levels, Bic.OST_Grids, Bic.OST_GenericModel, Bic.OST_FillPatterns,\
+                Bic.OST_Revisions]
 for bic in bics_count:
     headers.append(Count_Bic(bic)[1])
     data.append(Count_Bic(bic)[0])
@@ -106,6 +106,7 @@ headers.append("LineTypes")
 data.append(nr_of_linetypes)
 
 # write csv -------------------------------------------------------------------
+# write modeldata
 folder = "F:/910_EDV/910_REVIT/Model Health Monitor/modeldata/" + str(doc_name)
 try:
     os.mkdir(folder)
@@ -118,4 +119,10 @@ with open(path, 'wb') as file:
     wr.writerow(headers)
     wr.writerow(data)
 
-print("txs for your help.")
+# write column configuration file for power bi
+with open("F:/910_EDV/910_REVIT/Model Health Monitor/Columns.csv", 'wb') as file2:
+    wr = csv.writer(file2, dialect="excel", delimiter=";")
+    for header in headers:
+        wr.writerow([header])
+
+print("thx for your help.")
