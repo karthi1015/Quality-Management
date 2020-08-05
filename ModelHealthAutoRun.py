@@ -34,7 +34,7 @@ def Count_Bic(built_in_category):
     return [len(bic_elems), bic_name]
 
 
-def Naming_Match(cat_elem_list):
+def Naming_Match(cat_elems_list):
     # check interior cat_elems
     # return a list with index 0 = number of match and index 1 = number of nomatch
     cat_match_list = []
@@ -42,13 +42,13 @@ def Naming_Match(cat_elem_list):
     for cat_elem in cat_elems_list:
         # ask every door for its type name
         cat_elem_type = cat_elem.Name
-        amount_of_mats = len(regex_cat_elem_mat.findall(cat_elem_type))
-        cat_elem_total = len(regex_cat_elem_total.findall(cat_elem_type))
-        cat_elem_total_postfix = len(regex_cat_elem_total_postfix.findall(cat_elem_type))
+        amount_of_mats = len(regex_mat.findall(cat_elem_type))
+        cat_elem_total = len(regex_total.findall(cat_elem_type))
+        cat_elem_total_postfix = len(regex_total_postfix.findall(cat_elem_type))
         # check multi material cat_elems:
         if cat_elem_type.count("__") == 1 and amount_of_mats > 1 and cat_elem_total == 1:
             # check for not free text at the end
-            if len(filter(None, re.split(regex_cat_elem_total, cat_elem_type))) == 1:
+            if len(filter(None, re.split(regex_total, cat_elem_type))) == 1:
                 cat_match_list.append(cat_elem)
             # check for correct free text at the end
         elif cat_elem_total_postfix == 1:
