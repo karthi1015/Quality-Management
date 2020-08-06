@@ -7,6 +7,7 @@ from Autodesk.Revit.DB import FilteredElementCollector as Fec
 from Autodesk.Revit.DB import BuiltInCategory as Bic
 from Autodesk.Revit.DB import Document, ElementId, LinePatternElement
 from Autodesk.Revit.DB import ElementQuickFilter, ElementFilter, ElementMulticategoryFilter
+from Autodesk.Revit.DB import Family
 import re
 import csv
 import os
@@ -73,6 +74,8 @@ for model in __models__:
     doc_name_list = str(doc.Title)
     # .rsplit("_", 1)
     doc_name = doc_name_list.replace("_ZENTRALMODELL", "")
+    # get file size
+    file_size_mb = os.path.getsize(str(model)) / 1000000
 
     # Warnings -----------------------------------------------------------------
     # get all warnings
@@ -295,6 +298,8 @@ for model in __models__:
     data.append(str(today))
     headers.append("Document name")
     data.append(str(doc_name))
+    headers.append("File size in MB")
+    data.append(file_size_mb)
     headers.append("Warnings")
     data.append(len(warnings))
     headers.append("Model elements")
@@ -303,7 +308,7 @@ for model in __models__:
     data.append(nr_of_name_walls_correct)
     headers.append("WallName incorrect")
     data.append(nr_of_name_walls_incorrect)
-    headers.append("ColumNname correct")
+    headers.append("ColumName correct")
     data.append(nr_of_name_clms_correct)
     headers.append("ColumnName incorrect")
     data.append(nr_of_name_clms_incorrect)
@@ -320,16 +325,15 @@ for model in __models__:
     headers.append("CeilingName incorrect")
     data.append(nr_of_name_ceilings_incorrect)
 
-    # regular Bic counting
+    # regular Bic counting ---------------------------------------------------
     bics_count = [Bic.OST_Views, Bic.OST_Sheets, Bic.OST_Rooms, Bic.OST_Areas, Bic.OST_RvtLinks, Bic.OST_Materials,\
                     Bic.OST_IOSDetailGroups, Bic.OST_IOSModelGroups, Bic.OST_DesignOptionSets, Bic.OST_DesignOptions,\
-                    Bic.OST_RasterImages, Bic.OST_Levels, Bic.OST_Grids, Bic.OST_GenericModel, Bic.OST_FillPatterns,\
-                    Bic.OST_Revisions]
+                    Bic.OST_RasterImages, Bic.OST_Levels, Bic.OST_Grids, Bic.OST_GenericModel, Bic.OST_Revisions]
     for bic in bics_count:
         headers.append(Count_Bic(bic)[1])
         data.append(Count_Bic(bic)[0])
 
-    # count linestyles
+    # count linestyles --------------------------------------------------------
     lines_cat = doc.Settings.Categories.get_Item(Bic.OST_Lines)
     lines_subcat = lines_cat.SubCategories
     nr_of_linestyles = 0
@@ -338,7 +342,7 @@ for model in __models__:
     headers.append("LineStyles")
     data.append(nr_of_linestyles)
 
-    # count linestypes
+    # count linestypes -------------------------------------------------------
     linetypes = Fec(doc).OfClass(LinePatternElement)
     nr_of_linetypes = 0
     for i in linetypes:
@@ -346,7 +350,20 @@ for model in __models__:
     headers.append("LineTypes")
     data.append(nr_of_linetypes)
 
-    # write csv -------------------------------------------------------------------
+    # count Fillpatterns -----------------------------------------------------
+    filltypes = Fec(doc).OfClass(FillPatternElement)
+    nr_of_filltypes = 0
+    for i in filltypes:
+        # filter out strange duplicate solid fills (database corruption?)
+        if i.Name == "<Flächenfüllung>":
+            pass
+        # count non solid fills
+        else:
+            nr_of_filltypes += 1
+    headers.append("FillPatternTypes")
+    data.append(nr_of_filltypes)
+
+    # write csv ---------------------------------------------------------------
     # write modeldata
     folder = "F:/910_EDV/910_REVIT/Model Health Monitor/modeldata/" + str(doc_name)
     try:
