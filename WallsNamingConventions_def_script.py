@@ -36,18 +36,33 @@ color_none = Autodesk.Revit.DB.Color(200,0,0)
 color_none2 = Autodesk.Revit.DB.Color(128,0,0)
 
 # create graphical overrides
-ogs_aw = OverrideGraphicSettings().SetProjectionFillColor(color_aw)
-ogs_aw.SetProjectionFillPatternId(solid_fill)
+# try is here to deal with the api change from 2019 to 2020
+# when rvt 2019 is completely deprecated with SMP, delete try statement
+# and use only except part as main operation
+try:
+    ogs_aw = OverrideGraphicSettings().SetProjectionFillColor(color_aw)
+    ogs_aw.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_aw = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_aw)
+    ogs_aw.SetSurfaceForegroundPatternId(solid_fill)
 ogs_aw.SetSurfaceTransparency(10)
 ogs_aw.SetProjectionLineColor(color_aw2)
 
-ogs_iw = OverrideGraphicSettings().SetProjectionFillColor(color_iw)
-ogs_iw.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_iw = OverrideGraphicSettings().SetProjectionFillColor(color_iw)
+    ogs_iw.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_iw = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_iw)
+    ogs_iw.SetSurfaceForegroundPatternId(solid_fill)
 ogs_iw.SetSurfaceTransparency(10)
 ogs_iw.SetProjectionLineColor(color_iw2)
 
-ogs_none = OverrideGraphicSettings().SetProjectionFillColor(color_none)
-ogs_none.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_none = OverrideGraphicSettings().SetProjectionFillColor(color_none)
+    ogs_none.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_none = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_none)
+    ogs_none.SetSurfaceForegroundPatternId(solid_fill)
 ogs_none.SetSurfaceTransparency(0)
 ogs_none.SetProjectionLineColor(color_none2)
 
@@ -109,42 +124,29 @@ elements_info = []
 for element in elements:
     element_id = element.Id
     element_ids.append(element_id)
-
     element_type_name = element.Name
-
     element_aw_fa = element_type_name.startswith("AW-FA_")
     element_iw_fa = element_type_name.startswith("IW-FA_")
     element_aw = element_type_name.startswith("AW_")
     element_iw = element_type_name.startswith("IW_")
-
     element_info = Element_info(element_aw_fa, element_iw_fa, True, element_aw, element_iw, False, element_type_name, element_id)
     elements_info.append(element_info)
 
+elements_aw_iw = []
 
 for element in elements_info:
-
-    elements_aw = []
-    elements_iw = []
-
-    if element.aw:
-        elements_aw.append(element)
-
-    if element.iw:
-        elements_iw.append(element)
-
+    if element.aw or element.iw:
+        elements_aw_iw.append(element)
     if element.aw_fa:
-        el.none = False
-
+        element.none = False
+        element.match = True
     if element.iw_fa:
-        el.none = False
+        element.none = False
+        element.match = True
 
-    for el in process_elements(elements_aw):
-        el.match = True
-        el.none = False
-
-    for el in process_elements(elements_iw):
-        el.match = True
-        el.none = False
+for el in process_elements(elements_aw_iw):
+    el.match = True
+    el.none = False
 
 col1 = List[ElementId](element_ids)
 

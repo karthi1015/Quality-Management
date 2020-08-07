@@ -38,23 +38,42 @@ color_none = Autodesk.Revit.DB.Color(200,0,0)
 color_none2 = Autodesk.Revit.DB.Color(128,0,0)
 
 # create graphical overrides
-ogs_gd = OverrideGraphicSettings().SetProjectionFillColor(color_gd)
-ogs_gd.SetProjectionFillPatternId(solid_fill)
+# try is here to deal with the api change from 2019 to 2020
+# when rvt 2019 is completely deprecated with SMP, delete try statement
+# and use only except part as main operation
+try:
+    ogs_gd = OverrideGraphicSettings().SetProjectionFillColor(color_gd)
+    ogs_gd.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_gd = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_gd)
+    ogs_gd.SetSurfaceForegroundPatternId(solid_fill)
 ogs_gd.SetSurfaceTransparency(10)
 ogs_gd.SetProjectionLineColor(color_gd2)
 
-ogs_ba = OverrideGraphicSettings().SetProjectionFillColor(color_ba)
-ogs_ba.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_ba = OverrideGraphicSettings().SetProjectionFillColor(color_ba)
+    ogs_ba.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_ba = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_ba)
+    ogs_ba.SetSurfaceForegroundPatternId(solid_fill)
 ogs_ba.SetSurfaceTransparency(10)
 ogs_ba.SetProjectionLineColor(color_ba2)
 
-ogs_gd_ba = OverrideGraphicSettings().SetProjectionFillColor(color_gd_ba)
-ogs_gd_ba.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_gd_ba = OverrideGraphicSettings().SetProjectionFillColor(color_gd_ba)
+    ogs_gd_ba.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_gd_ba = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_gd_ba)
+    ogs_gd_ba.SetSurfaceForegroundPatternId(solid_fill)
 ogs_gd_ba.SetSurfaceTransparency(10)
 ogs_gd_ba.SetProjectionLineColor(color_gd_ba2)
 
-ogs_none = OverrideGraphicSettings().SetProjectionFillColor(color_none)
-ogs_none.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_none = OverrideGraphicSettings().SetProjectionFillColor(color_none)
+    ogs_none.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_none = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_none)
+    ogs_none.SetSurfaceForegroundPatternId(solid_fill)
 ogs_none.SetSurfaceTransparency(0)
 ogs_none.SetProjectionLineColor(color_none2)
 

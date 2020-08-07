@@ -35,18 +35,33 @@ color_none = Autodesk.Revit.DB.Color(200,0,0)
 color_none2 = Autodesk.Revit.DB.Color(128,0,0)
 
 # create graphical overrides
-ogs_ast = OverrideGraphicSettings().SetProjectionFillColor(color_ast)
-ogs_ast.SetProjectionFillPatternId(solid_fill)
+# try is here to deal with the api change from 2019 to 2020
+# when rvt 2019 is completely deprecated with SMP, delete try statement
+# and use only except part as main operation
+try:
+    ogs_ast = OverrideGraphicSettings().SetProjectionFillColor(color_ast)
+    ogs_ast.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_ast = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_ast)
+    ogs_ast.SetSurfaceForegroundPatternId(solid_fill)
 ogs_ast.SetSurfaceTransparency(10)
 ogs_ast.SetProjectionLineColor(color_ast2)
 
-ogs_ist = OverrideGraphicSettings().SetProjectionFillColor(color_ist)
-ogs_ist.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_ist = OverrideGraphicSettings().SetProjectionFillColor(color_ist)
+    ogs_ist.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_ist = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_ist)
+    ogs_ist.SetSurfaceForegroundPatternId(solid_fill)
 ogs_ist.SetSurfaceTransparency(10)
 ogs_ist.SetProjectionLineColor(color_ist2)
 
-ogs_none = OverrideGraphicSettings().SetProjectionFillColor(color_none)
-ogs_none.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_none = OverrideGraphicSettings().SetProjectionFillColor(color_none)
+    ogs_none.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_none = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_none)
+    ogs_none.SetSurfaceForegroundPatternId(solid_fill)
 ogs_none.SetSurfaceTransparency(0)
 ogs_none.SetProjectionLineColor(color_none2)
 
