@@ -5,9 +5,10 @@ from pyrevit import HOST_APP
 import Autodesk.Revit.DB as DB
 from Autodesk.Revit.DB import FilteredElementCollector as Fec
 from Autodesk.Revit.DB import BuiltInCategory as Bic
+from Autodesk.Revit.DB import FilteredWorksetCollector as Fwc
 from Autodesk.Revit.DB import Document, ElementId, LinePatternElement
 from Autodesk.Revit.DB import ElementQuickFilter, ElementFilter, ElementMulticategoryFilter
-from Autodesk.Revit.DB import Family
+from Autodesk.Revit.DB import Family, WorksetKind
 import re
 import csv
 import os
@@ -74,8 +75,11 @@ for model in __models__:
     doc_name_list = str(doc.Title)
     # .rsplit("_", 1)
     doc_name = doc_name_list.replace("_ZENTRALMODELL", "")
-    # get file size
+    # get file size ----------------------------------------------------------
     file_size_mb = os.path.getsize(str(model)) / 1000000
+    # get worksetcount ------------------------------------------------------
+    worksets = Fwc(doc).OfKind(WorksetKind.UserWorkset).ToWorksets()
+    nr_of_worksets = len(worksets)
 
     # Warnings -----------------------------------------------------------------
     # get all warnings
@@ -300,6 +304,8 @@ for model in __models__:
     data.append(str(doc_name))
     headers.append("File size in MB")
     data.append(file_size_mb)
+    headers.append("Worksets")
+    data.append(nr_of_worksets)
     headers.append("Warnings")
     data.append(len(warnings))
     headers.append("Model elements")
@@ -308,7 +314,7 @@ for model in __models__:
     data.append(nr_of_name_walls_correct)
     headers.append("WallName incorrect")
     data.append(nr_of_name_walls_incorrect)
-    headers.append("ColumName correct")
+    headers.append("ColumnName correct")
     data.append(nr_of_name_clms_correct)
     headers.append("ColumnName incorrect")
     data.append(nr_of_name_clms_incorrect)
@@ -332,6 +338,18 @@ for model in __models__:
     for bic in bics_count:
         headers.append(Count_Bic(bic)[1])
         data.append(Count_Bic(bic)[0])
+
+    #count families -------------------------------------------------------------
+    families = Fec(doc).OfClass(Family).ToElements()
+    nr_of_families = len(families)
+    nr_of_ipfamilies = 0
+    for family in families:
+        if family.IsInPlace:
+            nr_of_ipfamilies += 1
+    headers.append("Number of Families")
+    data.append(nr_of_families)
+    headers.append("Number of In-Place Families")
+    data.append(nr_of_ipfamilies)
 
     # count linestyles --------------------------------------------------------
     lines_cat = doc.Settings.Categories.get_Item(Bic.OST_Lines)
