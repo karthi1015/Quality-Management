@@ -121,12 +121,27 @@ def GetElemProps(elem_lst):
                     else:
                         elem_info.append(StructuralElement(id, "", ""))
                 elif elem.Category.Name == "Skelettbau":
-                    lvl_bott_id = elem.get_Parameter(Bip.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId()
-                    # modify data for easy matching
-                    lvl_top_id = "UKRD"
-                    # create and append objects
-                    elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), lvl_top_id))
                     element_ids.append(id)
+                    lvl_bott_id = elem.get_Parameter(Bip.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId()
+                    if elem.get_Parameter(Bip.Z_JUSTIFICATION).AsInteger() == 0:
+                        # z justification 0 = top
+                        # modify data for easy matching
+                        lvl_top = "UKRD"
+                        # create and append objects
+                        elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), lvl_top))
+                    elif elem.get_Parameter(Bip.Z_JUSTIFICATION).AsInteger() == 3:
+                        # z justification 3 = bottom
+                        lvl_bott = CnvrtToName(lvl_bott_id)
+                        if "UKRD" in lvl_bott:
+                            lvl_bott = "OKRF"
+                        else:
+                            # modify data for easy matching
+                            lvl_bott = ""
+                        # modify data for easy matching
+                        lvl_top = "UKRD"
+                        # create and append objects
+                        elem_info.append(StructuralElement(id, lvl_bott, lvl_top))
+
                 else:
                     pass
             except:
