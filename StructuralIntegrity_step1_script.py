@@ -59,13 +59,21 @@ color_false = Autodesk.Revit.DB.Color(236,77,0)
 color_false2 = Autodesk.Revit.DB.Color(153,51,0)
 
 # create graphical overrides
-ogs_true = OverrideGraphicSettings().SetProjectionFillColor(color_true)
-ogs_true.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_true = OverrideGraphicSettings().SetProjectionFillColor(color_true)
+    ogs_true.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_true = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_true)
+    ogs_true.SetSurfaceForegroundPatternId(solid_fill)
 ogs_true.SetSurfaceTransparency(10)
 ogs_true.SetProjectionLineColor(color_true2)
 
-ogs_false = OverrideGraphicSettings().SetProjectionFillColor(color_false)
-ogs_false.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_false = OverrideGraphicSettings().SetProjectionFillColor(color_false)
+    ogs_false.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_false = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_false)
+    ogs_false.SetSurfaceForegroundPatternId(solid_fill)
 ogs_false.SetSurfaceTransparency(0)
 ogs_false.SetProjectionLineColor(color_false2)
 

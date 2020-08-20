@@ -34,6 +34,12 @@ class WarningElement:
         self.lvl = lvl
 
 
+def CnvrtToName(id):
+    # Convert level ID to level Name
+    lvl_name = Document.GetElement(doc, id).Name
+    return lvl_name
+
+
 def GetElemProps(elem_lst):
     # this function takes all elements in the categories list and creates an object of the
     # StructuralElement class and appends it to the elem_info list.
@@ -148,13 +154,6 @@ def GetElemProps(elem_lst):
                 pass
 
 
-def CnvrtToName(id):
-    # Convert level ID to level Name
-    lvl_name = Document.GetElement(doc, id).Name
-    return lvl_name
-
-
-
 # get all fill patterns
 fill_patterns = Fec(doc).OfClass(FillPatternElement).WhereElementIsNotElementType().ToElements()
 # get id of solid fill
@@ -167,13 +166,21 @@ color_false = Autodesk.Revit.DB.Color(164,26,7)
 color_false2 = Autodesk.Revit.DB.Color(100,26,7)
 
 # create graphical overrides
-ogs_true = OverrideGraphicSettings().SetProjectionFillColor(color_true)
-ogs_true.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_true = OverrideGraphicSettings().SetProjectionFillColor(color_true)
+    ogs_true.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_true = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_true)
+    ogs_true.SetSurfaceForegroundPatternId(solid_fill)
 ogs_true.SetSurfaceTransparency(10)
 ogs_true.SetProjectionLineColor(color_true2)
 
-ogs_false = OverrideGraphicSettings().SetProjectionFillColor(color_false)
-ogs_false.SetProjectionFillPatternId(solid_fill)
+try:
+    ogs_false = OverrideGraphicSettings().SetProjectionFillColor(color_false)
+    ogs_false.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_false = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_false)
+    ogs_false.SetSurfaceForegroundPatternId(solid_fill)
 ogs_false.SetSurfaceTransparency(0)
 ogs_false.SetProjectionLineColor(color_false2)
 
