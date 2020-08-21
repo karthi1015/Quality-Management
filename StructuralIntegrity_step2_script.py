@@ -160,9 +160,9 @@ fill_patterns = Fec(doc).OfClass(FillPatternElement).WhereElementIsNotElementTyp
 solid_fill = fill_patterns[0].Id
 
 # set colors
-color_true = Autodesk.Revit.DB.Color(0,133,68)
+color_true = Autodesk.Revit.DB.Color(28,144,51)
 color_true2 = Autodesk.Revit.DB.Color(0,100,68)
-color_false = Autodesk.Revit.DB.Color(164,26,7)
+color_false = Autodesk.Revit.DB.Color(158,28,47)
 color_false2 = Autodesk.Revit.DB.Color(100,26,7)
 
 # create graphical overrides
