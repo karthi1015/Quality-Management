@@ -123,15 +123,6 @@ fill_patterns = Fec(doc).OfClass(FillPatternElement).WhereElementIsNotElementTyp
 # get id of solid fill
 solid_fill = fill_patterns[0].Id
 
-# set colors
-color_true = Autodesk.Revit.DB.Color(0,133,68)
-color_true2 = Autodesk.Revit.DB.Color(0,100,68)
-color_false = Autodesk.Revit.DB.Color(164,26,7)
-color_false2 = Autodesk.Revit.DB.Color(100,26,7)
-
-# create graphical overrides
-
-
 # connect to revit model elements via FilteredElementCollector
 # collect all the elements of categories
 categories = [Bic.OST_Floors, Bic.OST_StructuralFraming]
