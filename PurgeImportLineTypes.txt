@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+import clr
+clr.AddReference("RevitAPI")
+clr.AddReference("System")
+from System.Collections.Generic import List
+from Autodesk.Revit.DB import FilteredElementCollector as Fec
+from Autodesk.Revit.DB import Document
+from Autodesk.Revit.DB import Transaction
+from Autodesk.Revit.DB import ElementId
+
+
+linetypes = Fec(doc).OfClass(LinePatternElement)
+
+delete = []
+
+for i in linetypes:
+	if "IMPORT" in i.Name:
+		delete.append(i.Id)
+
+col1 = List[ElementId](delete)
+
+tx = Transaction(doc, "fuck off linetypes")
+tx.Start()
+
+doc.Delete(col1)
+
+tx.Commit()
