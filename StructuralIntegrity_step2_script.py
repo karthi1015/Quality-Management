@@ -19,10 +19,11 @@ __doc__ = 'Visualizes the level properties of Walls, Floors,' \
 
 class StructuralElement:
     # class containing information about the elements of includet categories
-    def __init__(self, id, lvl_bott, lvl_top):
+    def __init__(self, id, lvl_bott, lvl_top, attached):
         self.id = id
         self.lvl_bott = lvl_bott
         self.lvl_top = lvl_top
+        self.attached = attached
 
 
 class WarningElement:
@@ -45,12 +46,15 @@ def GetElemProps(elem_lst):
     # StructuralElement class and appends it to the elem_info list.
     for elem in elem_lst:
             try:
+                attached = 0
                 id = elem.Id
                 if elem.Category.Name == "Wände":
                     if elem.get_Parameter(Bip.WALL_STRUCTURAL_SIGNIFICANT).AsInteger() == 1:
                         if not (elem.Name.startswith("AW-FA_") or elem.Name.startswith("IW-FA_")):
                             element_ids.append(id)
-                            if not elem.get_Parameter(Bip.WALL_TOP_IS_ATTACHED).AsInteger() == 1:
+                            attached += elem.get_Parameter(Bip.WALL_TOP_IS_ATTACHED).AsInteger()
+                            attached += elem.get_Parameter(Bip.WALL_BOTTOM_IS_ATTACHED).AsInteger()
+                            if attached == 0:
                                 lvl_bott_id = elem.get_Parameter(Bip.WALL_BASE_CONSTRAINT).AsElementId()
                                 try:
                                     lvl_top_id = elem.get_Parameter(Bip.WALL_HEIGHT_TYPE).AsElementId()
@@ -59,9 +63,9 @@ def GetElemProps(elem_lst):
                                     # catch top constraint "manual"
                                     lvl_top = ""
                                 # create and append objects
-                                elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), lvl_top))
+                                elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), lvl_top, attached))
                             else:
-                                elem_info.append(StructuralElement(id, "", ""))
+                                elem_info.append(StructuralElement(id, "", "", attached))
                 elif elem.Category.Name == "Geschossdecken":
                     if elem.get_Parameter(Bip.FLOOR_PARAM_IS_STRUCTURAL).AsInteger() == 1:
                         if elem.Name.startswith("GD_"):
@@ -74,11 +78,11 @@ def GetElemProps(elem_lst):
                                 # modify data for easy matching
                                 lvl_bott = "OKRF"
                                 # create and append objects
-                                elem_info.append(StructuralElement(id, lvl_bott, lvl_top))
+                                elem_info.append(StructuralElement(id, lvl_bott, lvl_top, attached))
                                 element_ids.append(id)
                                 elem_wrngs.append(WarningElement(id, elem.Name, lvl))
                             else:
-                                elem_info.append(StructuralElement(id, lvl_bott, lvl_top))
+                                elem_info.append(StructuralElement(id, lvl_bott, lvl_top, attached))
                                 element_ids.append(id)
                         elif elem.Name.startswith("SO_"):
                             lvl_bott_id = elem.get_Parameter(Bip.LEVEL_PARAM).AsElementId()
@@ -89,7 +93,7 @@ def GetElemProps(elem_lst):
                                 lvl_bott = "OKRF"
                                 lvl_top = "UKRD"
                                 # create and append objects
-                                elem_info.append(StructuralElement(id, lvl_bott, lvl_top))
+                                elem_info.append(StructuralElement(id, lvl_bott, lvl_top, attached))
                                 element_ids.append(id)
                                 # append warning
                                 elem_wrngs.append(WarningElement(id, elem.Name, lvl))
@@ -109,13 +113,13 @@ def GetElemProps(elem_lst):
                                 lvl_bott = "OKRF"
                                 lvl_top = "UKRD"
                                 # create and append objects
-                                elem_info.append(StructuralElement(id, lvl_bott, lvl_top))
+                                elem_info.append(StructuralElement(id, lvl_bott, lvl_top, attached))
                         elif elem.Name.startswith("BA_"):
                             # modify data for easy matching
                             lvl_bott = ""
                             lvl_top = ""
                             # create and append objects
-                            elem_info.append(StructuralElement(id, lvl_bott, lvl_top))
+                            elem_info.append(StructuralElement(id, lvl_bott, lvl_top, attached))
                             element_ids.append(id)
                 elif elem.Category.Name == "Tragwerksstützen":
                     element_ids.append(id)
@@ -123,9 +127,9 @@ def GetElemProps(elem_lst):
                         lvl_bott_id = elem.get_Parameter(Bip.FAMILY_BASE_LEVEL_PARAM).AsElementId()
                         lvl_top_id = elem.get_Parameter(Bip.FAMILY_TOP_LEVEL_PARAM).AsElementId()
                         # create and append objects
-                        elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), CnvrtToName(lvl_top_id)))
+                        elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), CnvrtToName(lvl_top_id), attached))
                     else:
-                        elem_info.append(StructuralElement(id, "", ""))
+                        elem_info.append(StructuralElement(id, "", "", attached))
                 elif elem.Category.Name == "Skelettbau":
                     element_ids.append(id)
                     lvl_bott_id = elem.get_Parameter(Bip.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId()
@@ -134,7 +138,7 @@ def GetElemProps(elem_lst):
                         # modify data for easy matching
                         lvl_top = "UKRD"
                         # create and append objects
-                        elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), lvl_top))
+                        elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), lvl_top, attached))
                     elif elem.get_Parameter(Bip.Z_JUSTIFICATION).AsInteger() == 3:
                         # z justification 3 = bottom
                         lvl_bott = CnvrtToName(lvl_bott_id)
@@ -146,7 +150,7 @@ def GetElemProps(elem_lst):
                         # modify data for easy matching
                         lvl_top = "UKRD"
                         # create and append objects
-                        elem_info.append(StructuralElement(id, lvl_bott, lvl_top))
+                        elem_info.append(StructuralElement(id, lvl_bott, lvl_top, attached))
 
                 else:
                     pass
@@ -164,6 +168,8 @@ color_true = Autodesk.Revit.DB.Color(28,144,51)
 color_true2 = Autodesk.Revit.DB.Color(0,100,68)
 color_false = Autodesk.Revit.DB.Color(158,28,47)
 color_false2 = Autodesk.Revit.DB.Color(100,26,7)
+color_att = Autodesk.Revit.DB.Color(236,77,0)
+color_att2 = Autodesk.Revit.DB.Color(153,51,0)
 
 # create graphical overrides
 try:
@@ -183,6 +189,15 @@ except:
     ogs_false.SetSurfaceForegroundPatternId(solid_fill)
 ogs_false.SetSurfaceTransparency(0)
 ogs_false.SetProjectionLineColor(color_false2)
+
+try:
+    ogs_att = OverrideGraphicSettings().SetProjectionFillColor(color_att)
+    ogs_att.SetProjectionFillPatternId(solid_fill)
+except:
+    ogs_att = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_att)
+    ogs_att.SetSurfaceForegroundPatternId(solid_fill)
+ogs_att.SetSurfaceTransparency(10)
+ogs_att.SetProjectionLineColor(color_att2)
 
 # connect to revit model elements via FilteredElementCollector
 # collect all the elements of categories
@@ -209,7 +224,9 @@ doc.ActiveView.IsolateElementsTemporary(col1)
 
 # set graphical overrides
 for elem in elem_info:
-        if ("OKRF" in str(elem.lvl_bott)) and ("UKRD" in str(elem.lvl_top)):
+        if elem.attached != 0:
+            doc.ActiveView.SetElementOverrides((elem.id), ogs_att)
+        elif ("OKRF" in str(elem.lvl_bott)) and ("UKRD" in str(elem.lvl_top)):
             doc.ActiveView.SetElementOverrides((elem.id), ogs_true)
         else:
             doc.ActiveView.SetElementOverrides((elem.id), ogs_false)
