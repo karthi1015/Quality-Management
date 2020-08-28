@@ -16,10 +16,11 @@ __doc__ = 'Isolate Structural Elements'
 
 class StructuralElement:
     # class containing information about the elements of includet categories
-    def __init__(self, id, structure, attached):
+    def __init__(self, id, structure, attached, name):
         self.id = id
         self.structure = structure
         self.attached = attached
+        self.name = name
 
 
 # reference the current open revit model to work with:
@@ -86,6 +87,7 @@ for elem in filter(None, struct_elems1):
                 id = elem.Id
                 try:
                     element_ids.append(id)
+                    name = elem.Name
                     attached = 0
                     if elem.Category.Name == "Wände":
                         type_id = elem.WallType.Id
@@ -100,7 +102,7 @@ for elem in filter(None, struct_elems1):
                     # print(elem_type)
                     structure = elem_type.GetCompoundStructure().StructuralMaterialIndex
                     # print(structure)
-                    elem_info.append(StructuralElement(id, structure, attached))
+                    elem_info.append(StructuralElement(id, structure, attached, name))
                 except:
                     pass
         except:
@@ -110,13 +112,14 @@ for elem in filter(None, struct_elems1):
 for elem in struct_elems2:
     try:
         id = elem.Id
+        name = elem.Name
         element_ids.append(id)
         attached = 0
         if elem.Category.Name == "Tragwerksstützen":
             if elem.get_Parameter(Bip.COLUMN_TOP_ATTACHED_PARAM).AsInteger() == 1:
                 attached += 1
             structure = 0
-            elem_info.append(StructuralElement(id, structure, attached))
+            elem_info.append(StructuralElement(id, structure, attached, name))
     except:
         pass
 
@@ -136,13 +139,13 @@ output = script.get_output()
 for elem in elem_info:
     if elem.attached != 0:
         doc.ActiveView.SetElementOverrides((elem.id), ogs_att)
-        print("NOTE: Transparent orange element with ID: " + output.linkify(elem.id) + \
+        print("NOTE: Transparent orange element " + str(elem.name) + " with ID: " + output.linkify(elem.id) + \
         " is attached. Will not be automatically checked.")
     elif elem.structure != -1:
         doc.ActiveView.SetElementOverrides((elem.id), ogs_true)
     elif elem.structure == -1:
         doc.ActiveView.SetElementOverrides((elem.id), ogs_false)
-        print("WARNING: Solid orange element with ID: " + output.linkify(elem.id) + \
+        print("WARNING: Solid orange element " + str(elem.name) + " with ID: " + output.linkify(elem.id) + \
         " has no structural layer. Correct type before proceeding to next step.")
 print("---------------------------")
 print("Make sure to scroll to top.")
