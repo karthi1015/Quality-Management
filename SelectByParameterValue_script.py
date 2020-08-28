@@ -33,9 +33,6 @@ selection = revit.get_selection()
 selected_elements = selection.elements
 selected_element = selected_elements[0]
 
-# split element name after first "_"
-selected_element_name = selected_element.Name
-
 # get element category
 element_cat = selected_element.Category.Id
 
