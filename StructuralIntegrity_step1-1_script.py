@@ -40,30 +40,19 @@ color_att = Autodesk.Revit.DB.Color(236,77,0)
 color_att2 = Autodesk.Revit.DB.Color(153,51,0)
 
 # create graphical overrides
-try:
-    ogs_true = OverrideGraphicSettings().SetProjectionFillColor(color_true)
-    ogs_true.SetProjectionFillPatternId(solid_fill)
-except:
-    ogs_true = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_true)
-    ogs_true.SetSurfaceForegroundPatternId(solid_fill)
+
+ogs_true = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_true)
+ogs_true.SetSurfaceForegroundPatternId(solid_fill)
 ogs_true.SetSurfaceTransparency(10)
 ogs_true.SetProjectionLineColor(color_true2)
 
-try:
-    ogs_false = OverrideGraphicSettings().SetProjectionFillColor(color_false)
-    ogs_false.SetProjectionFillPatternId(solid_fill)
-except:
-    ogs_false = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_false)
-    ogs_false.SetSurfaceForegroundPatternId(solid_fill)
+ogs_false = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_false)
+ogs_false.SetSurfaceForegroundPatternId(solid_fill)
 ogs_false.SetSurfaceTransparency(0)
 ogs_false.SetProjectionLineColor(color_false2)
 
-try:
-    ogs_att = OverrideGraphicSettings().SetProjectionFillColor(color_att)
-    ogs_att.SetProjectionFillPatternId(solid_fill)
-except:
-    ogs_att = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_att)
-    ogs_att.SetSurfaceForegroundPatternId(solid_fill)
+ogs_att = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_att)
+ogs_att.SetSurfaceForegroundPatternId(solid_fill)
 ogs_att.SetSurfaceTransparency(10)
 ogs_att.SetProjectionLineColor(color_att2)
 
@@ -115,10 +104,12 @@ for elem in struct_elems2:
         name = elem.Name
         element_ids.append(id)
         attached = 0
+        structure = 0
         if elem.Category.Name == "Tragwerksstützen":
             if elem.get_Parameter(Bip.COLUMN_TOP_ATTACHED_PARAM).AsInteger() == 1:
                 attached += 1
-            structure = 0
+            elem_info.append(StructuralElement(id, structure, attached, name))
+        elif elem.Category.Name == "Skelettbau":
             elem_info.append(StructuralElement(id, structure, attached, name))
     except:
         pass
