@@ -56,12 +56,14 @@ def GetElemProps(elem_lst):
                             attached += elem.get_Parameter(Bip.WALL_BOTTOM_IS_ATTACHED).AsInteger()
                             if attached == 0:
                                 lvl_bott_id = elem.get_Parameter(Bip.WALL_BASE_CONSTRAINT).AsElementId()
-                                try:
-                                    lvl_top_id = elem.get_Parameter(Bip.WALL_HEIGHT_TYPE).AsElementId()
+                                lvl_top_id = elem.get_Parameter(Bip.WALL_HEIGHT_TYPE).AsElementId()
+                                if str(lvl_top_id) != "-1":
+                                    # print(lvl_top_id)
                                     lvl_top = CnvrtToName(lvl_top_id)
-                                except:
+                                else:
                                     # catch top constraint "manual"
-                                    lvl_top = ""
+                                    lvl_top = "manual"
+                                    # print(lvl_top)
                                 # create and append objects
                                 elem_info.append(StructuralElement(id, CnvrtToName(lvl_bott_id), lvl_top, attached))
                             else:
@@ -170,34 +172,30 @@ color_false = Autodesk.Revit.DB.Color(158,28,47)
 color_false2 = Autodesk.Revit.DB.Color(100,26,7)
 color_att = Autodesk.Revit.DB.Color(236,77,0)
 color_att2 = Autodesk.Revit.DB.Color(153,51,0)
+color_manual = Autodesk.Revit.DB.Color(36,157,151)
+color_manual2 = Autodesk.Revit.DB.Color(22,95,91)
 
 # create graphical overrides
-try:
-    ogs_true = OverrideGraphicSettings().SetProjectionFillColor(color_true)
-    ogs_true.SetProjectionFillPatternId(solid_fill)
-except:
-    ogs_true = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_true)
-    ogs_true.SetSurfaceForegroundPatternId(solid_fill)
+
+ogs_true = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_true)
+ogs_true.SetSurfaceForegroundPatternId(solid_fill)
 ogs_true.SetSurfaceTransparency(10)
 ogs_true.SetProjectionLineColor(color_true2)
 
-try:
-    ogs_false = OverrideGraphicSettings().SetProjectionFillColor(color_false)
-    ogs_false.SetProjectionFillPatternId(solid_fill)
-except:
-    ogs_false = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_false)
-    ogs_false.SetSurfaceForegroundPatternId(solid_fill)
+ogs_false = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_false)
+ogs_false.SetSurfaceForegroundPatternId(solid_fill)
 ogs_false.SetSurfaceTransparency(0)
 ogs_false.SetProjectionLineColor(color_false2)
 
-try:
-    ogs_att = OverrideGraphicSettings().SetProjectionFillColor(color_att)
-    ogs_att.SetProjectionFillPatternId(solid_fill)
-except:
-    ogs_att = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_att)
-    ogs_att.SetSurfaceForegroundPatternId(solid_fill)
+ogs_att = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_att)
+ogs_att.SetSurfaceForegroundPatternId(solid_fill)
 ogs_att.SetSurfaceTransparency(10)
 ogs_att.SetProjectionLineColor(color_att2)
+
+ogs_manual = OverrideGraphicSettings().SetSurfaceForegroundPatternColor(color_manual)
+ogs_manual.SetSurfaceForegroundPatternId(solid_fill)
+ogs_manual.SetSurfaceTransparency(0)
+ogs_manual.SetProjectionLineColor(color_manual2)
 
 # connect to revit model elements via FilteredElementCollector
 # collect all the elements of categories
@@ -228,6 +226,8 @@ for elem in elem_info:
             doc.ActiveView.SetElementOverrides((elem.id), ogs_att)
         elif ("OKRF" in str(elem.lvl_bott)) and ("UKRD" in str(elem.lvl_top)):
             doc.ActiveView.SetElementOverrides((elem.id), ogs_true)
+        elif "manual" in str(elem.lvl_top):
+            doc.ActiveView.SetElementOverrides((elem.id), ogs_manual)
         else:
             doc.ActiveView.SetElementOverrides((elem.id), ogs_false)
 
